@@ -1,0 +1,32 @@
+<!DOCTYPE>
+<html>
+
+<head>
+    <title>change colore</title>
+    <script src="http://localhost/arcgis_js_api/library/3.22/3.22compact/init.js"></script>
+    <script type="text/javascript">
+        require(["dojo/on", "dojo/dom", "dojo/dom-style", "dojo/mouse", "dojo/domReady!"], function(on, dom, domStyle, mouse) {
+            var myButton = dom.byId("myButton");
+            var myDiv = dom.byId("myDiv");
+            var handle = on(myButton, "click", function(evt) {
+                domStyle.set(myDiv, "backgroundColor", "blue");
+                handle.remove();
+            });
+            on(myDiv, mouse.enter, function(evt) {
+                domStyle.set(myDiv, "backgroundColor", "red");
+            });
+            on(myDiv, mouse.leave, function(evt) {
+                domStyle.set(myDiv, "backgroundColor", "");
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <div>
+        <button id="myButton">click me!</button>
+        <div id="myDiv">Hover over me!</div>
+    </div>
+</body>
+
+</html>
