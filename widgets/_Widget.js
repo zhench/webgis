@@ -17,7 +17,7 @@ define([
         setTitle: function( /*String*/ title) {
             this.title = title;
         },
-        setIcon + function( /*String*/ icon) {
+        setIcon: function( /*String*/ icon) {
             this.icon = icon;
         },
         setState: function( /*String*/ state) {
