@@ -24,7 +24,7 @@ define([
                     paddingBottom: 100,
                     paddingLeft: 100,
                     paddingRight: 100,
-                    marginleft: 100
+                    marginLeft: 100
                 };
             },
             postCreate: function() {
@@ -69,9 +69,9 @@ define([
                 this.boxMaximized.paddingTop = domStyle.get(this.boxNode, "paddingTop");
                 this.boxMaximized.paddingBottom = domStyle.get(this.boxNode, "paddingBottom");
                 this.boxMaximized.paddingLeft = domStyle.get(this.boxNode, "paddingLeft");
-                this.boxMaximized.paddingRight = domStyle.get(this.domNode, "paddingRigth");
-                this.boxMaximized.marginleft = domStyle.get(this.domNode, "marginLeft");
-                this.boxMaximized.w = this.widgetWidth - (this.boxMaximized.marginleft + this.boxMaximized.paddingLeft + this.boxMaximized.paddingRight);
+                this.boxMaximized.paddingRight = domStyle.get(this.domNode, "paddingRight");
+                this.boxMaximized.marginLeft = domStyle.get(this.domNode, "marginLeft");
+                this.boxMaximized.w = this.widgetWidth - (this.boxMaximized.marginLeft + this.boxMaximized.paddingLeft + this.boxMaximized.paddingRight);
                 for (var i = 0; i < this.widget.panels.length; i++) {
                     this.widget.showPanel(i);
                     var h = domStyle.get(this.boxNode, "height");
@@ -79,9 +79,9 @@ define([
                 }
                 this.widget.showPanel(0);
                 if (this.state === "minimized") {
-                    this.minimized(0);
+                    this.minimize(0);
                 } else {
-                    this.maximized(0);
+                    this.maximize(0);
                 }
                 fx.fadeIn({ node: this.domNode }).play();
                 this.moveableHandle = new Moverable(this.id, { handle: 'dragHandle' });
@@ -193,8 +193,144 @@ define([
                         cor.combine([badgeSlider, hShrink]).play();
                         thiss.state = "maximizing";
                     } catch (err) {
-                        console.error(drr);
+                        console.error(err);
+                    }
+                }
+            },
+            minimize: function(duration) {
+                console.log("minimizing!");
+                var boxEndProperties = {
+                    height: 20,
+                    paddingTop: 0,
+                    paddingBottom: 0,
+                    marginTop: 20,
+                    marginLeft: this.widgetWidth - 200,
+                    width: 150,
+                    paddingLeft: this.boxMaximized.paddingRight,
+                    paddingRight: this.boxMaximized.paddingLeft
+                };
+                var badgeEndProperties = {
+                    left: this.widgetWidth - 40;
+                };
+                if (duration !== 0 && !duration) {
+                    duration = 350;
+                }
+                if (duration <= 0) {
+                    for (var key in boxEndProperties) {
+                        boxEndProperties[key] = boxEndProperties[key] + "px";
+                    }
+                    for (var key in badgeEndProperties) {
+                        badgeEndProperties[key] = badgeEndProperties[key] + "px";
+                    }
+                    domStyle.set(this.badgeNode, badgeEndProperties);
+                    domStyle.set(this.boxNode, boxEndProperties);
+                    domStyle.set(this.contentNode, "overflow", "hidden");
+                    query(".widgetButton", this.domNode).style("display", "none");
+                    this.state = "minimized";
+                } else {
+                    try {
+                        var vShrink = fx.animateProperty({
+                            node: this.boxNode,
+                            duration: duration,
+                            beforeBegin: lang.hitch(this, function() {
+                                domStyle.set(this.contentNode, "overflow", "hidden");
+                                query(".widgetButton", this.domNode).style("display", "none");
+                            }),
+                            properties: {
+                                height: boxEndProperties.height,
+                                paddingTop: boxEndProperties.paddingTop,
+                                paddingBottom: boxEndProperties.paddingBottom,
+                                marginTop: boxEndProperties.marginTop
+                            }
+                        });
+                        var hShrink = fx.animateProperty({
+                            node: this.boxNode,
+                            duration: duration,
+                            beforeBegin: lang.hitch(this, function() {
+                                domStyle.set(this.contentNode, "display", "none");
+                            }),
+                            properties: {
+                                width: "10",
+                                paddingLeft: "0",
+                                paddingRight: "0"
+                            },
+                            onEnd: lang.hitch(this, function() {
+                                var badgeSlide = fx.animateProperty({
+                                    node: this.badgeNode,
+                                    duration: duration,
+                                    properties: badgeEndProperties
+                                });
+                                var hGrow = fx.animateProperty({
+                                    node: this.boxNode,
+                                    duration: duration,
+                                    properties: {
+                                        marginLeft: boxEndProperties.marginLeft,
+                                        width: boxEndProperties.width,
+                                        paddingLeft: boxEndProperties.paddingLeft,
+                                        paddingRight: boxEndProperties.paddingRight
+                                    },
+                                    onEnd: lang.hitch(this, function() {
+                                        console.log("minimized!");
+                                        this.state = "minimized";
+                                    })
+                                });
+                                coreFx.combine([badgeSlide, hGrow]).play();
+                            })
+                        });
+                        coreFx.chain([vShrink, hShrink]).play();
+                        this.state = "minimizing";
+                    } catch (err) {
+                        console.error(err);
+                    }
+                }
+            },
+            onMinClick: function(evt) {
+                this.minimize();
+            },
+            onCloseClick: function(evt) {
+                //淡出并删除
+                fx.fadeOut({
+                    node: this.id,
+                    onEnd: lang.hitch(this, function() {
+                        if (this.widget && this.widget.shutdown) {
+                            this.widget.shutdown();
+                        }
+                        this.parentNode.removeChild(this);
+                    })
+                }).play();
+            },
+            onBadgeClick: function(evt) {
+                if (this.state === "maximized") {
+                    this.minimize();
+                } else if (this.state === "minimized") {
+                    this.maximize();
+                }
+            },
+            selectPanel: function(index) {
+                if (index !== this.widget.panelIndex) {
+                    try {
+                        var firstHalf = fx.fadeOut({
+                            node: this.contentNode,
+                            duration: 150,
+                            onEnd: lang.hitch(this, function() {
+                                this.widget.showPanel(index);
+                            })
+                        });
 
+                        var resize = fx.animateProperty({
+                            node: this.boxNode,
+                            duration: 150,
+                            properties: {
+                                height: this.boxMaximized.h[index]
+                            }
+                        });
+                        var secondHalf = fx.fadeIn({
+                            node: this.contentNode,
+                            duration: 150
+                        });
+                        coreFx.chain([firstHalf, resize, secondHalf]).play();
+                    } catch (err) {
+                        console.error(err);
                     }
                 }
             }
