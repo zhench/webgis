@@ -1,7 +1,7 @@
 define([
-        "dojo/_base/declare", "dojo/_base/array", "dojo/query", "dojo/dom-style", "dojo/on", "dojo/fx", "dojo/_base/fx", "dojo/_base/lang", "dojo/dom-attr", "dojo/dom-class", "dojo/dom-geomety", "dijit/_Widget", "dijit/_Container", "dojo/dnd/Moverable", "dijit/_TemplatedMixin", "dojo/text!./templates/MoveableWidgetFrame.html"
+        "dojo/_base/declare", "dojo/_base/array", "dojo/query", "dojo/dom-style", "dojo/on", "dojo/fx", "dojo/_base/fx", "dojo/_base/lang", "dojo/dom-attr", "dojo/dom-class", "dojo/dom-geometry", "dijit/_Widget", "dijit/_Container", "dojo/dnd/Moveable", "dijit/_TemplatedMixin", "dojo/text!./templates/MoveableWidgetFrame.html"
     ],
-    function(declare, array, query, domStyle, on, coreFx, fx, lang, domAttr, domClass, domGeom, _Widget, _Container, Moverable, _TemplatedMixin, template) {
+    function(declare, array, query, domStyle, on, coreFx, fx, lang, domAttr, domClass, domGeom, _Widget, _Container, Moveable, _TemplatedMixin, template) {
         return declare([_Widget, _TemplatedMixin, _Container], {
             widget: null,
             icon: "",
@@ -14,8 +14,7 @@ define([
             //调用postCreate创建框架后自动计算
             widgetWidth: 100,
             boxMaximized: null,
-            templatePath,
-            template,
+            templatePath: template,
             constructor: function() {
                 this.boxMaximized = {
                     w: 100,
@@ -84,7 +83,7 @@ define([
                     this.maximize(0);
                 }
                 fx.fadeIn({ node: this.domNode }).play();
-                this.moveableHandle = new Moverable(this.id, { handle: 'dragHandle' });
+                this.MoveableHandle = new Moveable(this.id, { handle: 'dragHandle' });
                 console.log("widgetFrame::startup ended");
             },
             setWidget: function(widget, childAlreadyAdded) {
@@ -210,7 +209,7 @@ define([
                     paddingRight: this.boxMaximized.paddingLeft
                 };
                 var badgeEndProperties = {
-                    left: this.widgetWidth - 40;
+                    left: this.widgetWidth - 40
                 };
                 if (duration !== 0 && !duration) {
                     duration = 350;

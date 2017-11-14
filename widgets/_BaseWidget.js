@@ -1,4 +1,4 @@
-define(["dojo/_base/declare", "dojo/_base/array", "dojo/query", "dojo/dom-attr", "dojo/dom-style", "dojo/on", "dojo/_base/lang", "./_Widget.js", "dojo/text!./templates/_BaseWidget.html"],
+define(["dojo/_base/declare", "dojo/_base/array", "dojo/query", "dojo/dom-attr", "dojo/dom-style", "dojo/on", "dojo/_base/lang", "./widgets/_Widget.js", "dojo/text!./templates/_BaseWidget.html"],
     function(declare, array, query, domAttr, domStyle, on, lang, _Widget, template) {
         return declare(_Widget, {
             constructor: function( /*Object*/ params) {
